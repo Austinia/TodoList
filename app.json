@@ -27,6 +27,8 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "description": "해야하는 것과 하고 싶은 것을 따로 적을 수 있는 투두리스트",
+    "githubUrl": "https://github.com/Austinia/TodoList"
   }
 }
