@@ -76,7 +76,7 @@ export default function App() {
   };
   return (
     <View style={{ ...styles.container, backgroundColor: working ? theme.bg : theme.brightBg }}>
-      <StatusBar style="auto" />
+      <StatusBar style="light" />
       {working ? <Snow snowflakesCount={0} /> : <Snow snowflakesCount={150} fallspeed="fast"/>}
       <View style={styles.header}>
         <TouchableOpacity onPress={work}>
