@@ -12,6 +12,7 @@ import {
 import { theme } from "./colors";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Fontisto } from '@expo/vector-icons'; 
+import Snow from "react-native-snow-bg";
 
 const STORAGE_KEY = "@toDos";
 
@@ -74,12 +75,13 @@ export default function App() {
     //방법 : Object.assign({}, 이전데이터, 새데이터)
   };
   return (
-    <View style={styles.container}>
+    <View style={{ ...styles.container, backgroundColor: working ? theme.bg : theme.brightBg }}>
       <StatusBar style="auto" />
+      {working ? <Snow snowflakesCount={0} /> : <Snow snowflakesCount={150} fallspeed="fast"/>}
       <View style={styles.header}>
         <TouchableOpacity onPress={work}>
           <Text
-            style={{ ...styles.btnText, color: working ? "white" : theme.grey }}
+            style={{ ...styles.btnText, color: working ? "white" : theme.brightBg }}
           >
             To do
           </Text>
@@ -99,7 +101,7 @@ export default function App() {
         onSubmitEditing={addToDo}
         returnKeyType="done"
         style={styles.input}
-        placeholder={working ? "Add a To Do" : "Where do you want to go"}
+        placeholder={working ? "해야 하는 것을 적으세요" : "하고 싶은 것을 적으세요"}
         onChangeText={onChangeText}
         value={text}
       />
@@ -109,10 +111,10 @@ export default function App() {
       <ScrollView>
         {Object.keys(toDos).map((key) =>
           toDos[key].working === working ? (
-            <View style={styles.toDo} key={key}>
+            <View  style={{ ...styles.toDo, backgroundColor: working ? theme.todoBg : theme.brightTodoBg }} key={key}>
               <Text style={styles.toDoText}>{toDos[key].text}</Text>
               <TouchableOpacity onPress={() => deleteTodo(key)}>
-                <Fontisto name="trash" size={18} color={theme.grey} />
+                <Fontisto name="trash" size={18} color={working ? theme.grey : theme.brighttrash} />
               </TouchableOpacity>
             </View>
           ) : null
