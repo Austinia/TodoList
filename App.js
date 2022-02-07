@@ -8,10 +8,11 @@ import {
   TextInput,
   ScrollView,
   Alert,
+  Platform,
 } from "react-native";
 import { theme } from "./colors";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { Fontisto } from '@expo/vector-icons'; 
+import { Fontisto } from "@expo/vector-icons";
 import Snow from "react-native-snow-bg";
 
 const STORAGE_KEY = "@toDos";
@@ -26,19 +27,30 @@ export default function App() {
   useEffect(() => {
     loadToDos();
   }, []);
-  const deleteTodo = async (key) => { //삭제 버튼 클릭 시 발동
-    Alert.alert("정말로 삭제하시겠습니까?", "확실해요?", [
-      { text: "취소" },
-      {
-        text: "응, 확실해",
-        onPress: async() => {
-          const newTodos = { ...toDos }; //state의 내용을 새 obj생성
-          delete newTodos[key]; //안에 있는 key를 제거
-          setToDos(newTodos); //state를 업데이트
-          await saveToDos(newTodos); //Async저장소 업데이트
+  const deleteTodo = async (key) => {
+    //삭제 버튼 클릭 시 발동
+    if (Platform.OS === "web") {
+      const ok = confirm("정말로 삭제하시겠습니까?");
+      if (ok) {
+        const newTodos = { ...toDos }; //state의 내용을 새 obj생성
+        delete newTodos[key]; //안에 있는 key를 제거
+        setToDos(newTodos); //state를 업데이트
+        await saveToDos(newTodos); //Async저장소 업데이트
+      }
+    } else {
+      Alert.alert("정말로 삭제하시겠습니까?", "확실해요?", [
+        { text: "취소" },
+        {
+          text: "응, 확실해",
+          onPress: async () => {
+            const newTodos = { ...toDos }; //state의 내용을 새 obj생성
+            delete newTodos[key]; //안에 있는 key를 제거
+            setToDos(newTodos); //state를 업데이트
+            await saveToDos(newTodos); //Async저장소 업데이트
+          },
         },
-      },
-    ]);
+      ]);
+    }
   };
   const saveToDos = async (toSave) => {
     try {
@@ -60,14 +72,15 @@ export default function App() {
       alert(error);
     }
   };
-  const addToDo = async () => { //submit event에 반응해 발동
+  const addToDo = async () => {
+    //submit event에 반응해 발동
     if (text === "") {
       return;
     }
     // const newToDos = Object.assign({}, toDos, {
     //   [Date.now()]: { text, work: working },
     // });
-    const newToDos = { ...toDos, [Date.now()]: { text, working } };// 새 스테이트에 다른 스테이트 정보를 넣고 새 데이터도 넣음
+    const newToDos = { ...toDos, [Date.now()]: { text, working } }; // 새 스테이트에 다른 스테이트 정보를 넣고 새 데이터도 넣음
     setToDos(newToDos); //state update
     await saveToDos(newToDos); //Async 저장소에 update
     setText(""); //지우는 역할
@@ -75,13 +88,26 @@ export default function App() {
     //방법 : Object.assign({}, 이전데이터, 새데이터)
   };
   return (
-    <View style={{ ...styles.container, backgroundColor: working ? theme.bg : theme.brightBg }}>
+    <View
+      style={{
+        ...styles.container,
+        backgroundColor: working ? theme.bg : theme.brightBg,
+      }}
+    >
       <StatusBar style="light" />
-      {working ? <Snow snowflakesCount={0} /> : <Snow snowflakesCount={150} fallspeed="fast"/>}
+      {working ? (
+        <Snow snowflakesCount={0} />
+      ) : (
+        <Snow snowflakesCount={150} fallspeed="fast" />
+      )}
       <View style={styles.header}>
         <TouchableOpacity onPress={work}>
           <Text
-            style={{ ...styles.btnText, color: working ? "white" : theme.brightBg }}
+            style={{
+              fontSize: 38,
+              fontWeight: "600",
+              color: working ? "white" : theme.brightBg,
+            }}
           >
             To do
           </Text>
@@ -89,7 +115,8 @@ export default function App() {
         <TouchableOpacity onPress={wish}>
           <Text
             style={{
-              ...styles.btnText,
+              fontSize: 38,
+              fontWeight: "600",
               color: !working ? "white" : theme.grey,
             }}
           >
@@ -101,7 +128,9 @@ export default function App() {
         onSubmitEditing={addToDo}
         returnKeyType="done"
         style={styles.input}
-        placeholder={working ? "해야 하는 것을 적으세요" : "하고 싶은 것을 적으세요"}
+        placeholder={
+          working ? "해야 하는 것을 적으세요" : "하고 싶은 것을 적으세요"
+        }
         onChangeText={onChangeText}
         value={text}
       />
@@ -111,10 +140,20 @@ export default function App() {
       <ScrollView>
         {Object.keys(toDos).map((key) =>
           toDos[key].working === working ? (
-            <View  style={{ ...styles.toDo, backgroundColor: working ? theme.todoBg : theme.brightTodoBg }} key={key}>
+            <View
+              style={{
+                ...styles.toDo,
+                backgroundColor: working ? theme.todoBg : theme.brightTodoBg,
+              }}
+              key={key}
+            >
               <Text style={styles.toDoText}>{toDos[key].text}</Text>
               <TouchableOpacity onPress={() => deleteTodo(key)}>
-                <Fontisto name="trash" size={18} color={working ? theme.grey : theme.brighttrash} />
+                <Fontisto
+                  name="trash"
+                  size={18}
+                  color={working ? theme.grey : theme.brighttrash}
+                />
               </TouchableOpacity>
             </View>
           ) : null
@@ -134,10 +173,6 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     flexDirection: "row",
     marginTop: 100,
-  },
-  btnText: {
-    fontSize: 38,
-    fontWeight: "600",
   },
   input: {
     backgroundColor: "white",
